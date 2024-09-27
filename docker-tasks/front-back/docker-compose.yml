@@ -1,0 +1,47 @@
+name: ex-front-back
+
+services:
+  back:
+    image: temp-ex-backend
+    environment:
+      - REQUEST_ORIGIN=http://localhost:5000
+      - REDIS_HOST=redis
+      - POSTGRES_HOST=db
+      - POSTGRES_USER=backend-user
+      - POSTGRES_DATABASE=backend-db
+      - POSTGRES_PASSWORD=asdASD+-,
+    ports:
+      - 8080:8080
+    depends_on:
+      - redis
+
+  front:
+    image: temp-ex-frontend
+    #environment:
+      #      - REACT_APP_BACKEND_URL=http://colasloth.com:8080/
+    ports:
+      - 5000:5000
+    depends_on:
+      - back
+      - redis
+
+  redis:
+    image: redis:bookworm
+    restart: unless-stopped
+
+  db:
+    image: postgres:17-alpine3.19
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=backend-user
+      - POSTGRES_DB=backend-db
+      - POSTGRES_PASSWORD=asdASD+-,
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - ./db-data:/var/lib/postgresql/data
+
+  proxy:
+    image: temp-ex-proxy
+    ports:
+      - 80:80
+    restart: unless-stopped
