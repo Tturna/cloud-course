@@ -1,0 +1,43 @@
+name: traefik-quickstar
+
+services:
+  reverse-proxy:
+    image: traefik:3.1
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=eemeli21002@student.hamk.fi"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - 80:80
+      - 443:443
+      - 8080:8080
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+
+  whoami:
+    image: traefik/whoami
+    #container_name: "simpleservice"
+    scale: 3
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami.rule=Host(`whoami.docker.localhost`)"
+      - "traeifk.http.routers.whoami.entryPoints=web, websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
+
+  whoami2:
+    image: nginxdemos/hello
+    scale: 2
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.whoami2.rule=Host(`whoami.docker.localhost`) && Path(`/whoami2`)"
+      - "traeifk.http.routers.whoami2.entryPoints=web, websecure"
+      - "traefik.http.routers.whoami2.tls.certresolver=myresolver"

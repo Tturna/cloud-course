@@ -1,0 +1,10 @@
+services:
+  db:
+    image: postgres:13.2-alpine
+    networks:
+      - tietokanta-net
+
+networks:
+  tietokanta-net:
+    external: true
+    name: tietokanta-network

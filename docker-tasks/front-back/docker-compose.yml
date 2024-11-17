@@ -1,8 +1,8 @@
-name: ex-front-back
+name: ma-front-back
 
 services:
   back:
-    image: temp-ex-backend
+    image: ma-back
     environment:
       - REQUEST_ORIGIN=http://localhost:5000
       - REDIS_HOST=redis
@@ -10,17 +10,15 @@ services:
       - POSTGRES_USER=backend-user
       - POSTGRES_DATABASE=backend-db
       - POSTGRES_PASSWORD=asdASD+-,
-    ports:
-      - 8080:8080
+      #ports:
+      #  - 8080:8080
     depends_on:
       - redis
 
   front:
-    image: temp-ex-frontend
-    #environment:
-      #      - REACT_APP_BACKEND_URL=http://colasloth.com:8080/
-    ports:
-      - 5000:5000
+    image: ma-front
+    #ports:
+    #  - 5000:5000
     depends_on:
       - back
       - redis
@@ -41,7 +39,9 @@ services:
       - ./db-data:/var/lib/postgresql/data
 
   proxy:
-    image: temp-ex-proxy
+    image: ma-proxy
     ports:
       - 80:80
+    depends_on:
+      - back
     restart: unless-stopped
